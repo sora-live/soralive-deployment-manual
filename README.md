@@ -192,9 +192,12 @@ git clone https://github.com/minyami-net/soralive-frontend.git
 
 ```bash
 cd /var/www/soralive-frontend
-npm install
+npm install --allow-root
 npm run build
 ```
+
+> 即使是使用root用户执行`npm install`，仍然可能碰到权限不足的问题。
+> 添加`--allow-root`参数来让npm自己使用root账户执行命令。
 
 打包好的文件会生成在dist中。下面直接发布dist这个目录即可。
 
