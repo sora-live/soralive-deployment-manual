@@ -156,7 +156,7 @@ git clone https://github.com/minyami-net/soralive-backend.git
 
 注意80端口的部分实际上只针对localhost开放了。本系统绝大多数时候使用443端口上的https连接，但是需要一个内部连接仅供rtmp服务器的callback使用。
 
-不要忘了创建到`sites-enable`的软链接。之后重启php-fpm和nginx，后端（的大部分）部署就结束了。
+不要忘了创建到`sites-enable`的软链接。之后重启php-fpm和nginx，后端部署就结束了。
 
 ```bash
 ln -s /etc/nginx/sites-available/backend.conf /etc/nginx/sites-enabled/backend.conf
@@ -164,3 +164,55 @@ systemctl restart php7.2-fpm
 systemctl restart nginx
 ```
 
+## 部署前端
+
+### 安装Node.js
+
+众所周知，apt库里是没有node.js的，作为Ubuntu用户，一般比较喜欢使用NodeSource维护的第三方源，还挺好用的。如果你不爱的话可以下载官方编译的Node Linux二进制文件然后手工安装，也挺方便的。
+
+```bash
+curl -sL https://deb.nodesource.com/setup_12.x | bash -
+apt install nodejs
+```
+
+### 拉取代码
+
+从主分支拉取前端代码到任意一个你存放前端代码的目录。我这里使用的是`/var/www/soralive-frontend`。
+
+```bash
+cd /var/www
+git clone https://github.com/minyami-net/soralive-frontend.git
+```
+
+### 修改配置并打包前端
+
+前端只有一处配置需要修改：在`src/globalconst.js`里。修改apiRoot的值为对应的域名。
+
+然后就可以进行前端的打包。回到`/var/www/soralive-frontend`目录：
+
+```bash
+cd /var/www/soralive-frontend
+npm install
+npm run build
+```
+
+打包好的文件会生成在dist中。下面直接发布dist这个目录即可。
+
+### 配置Nginx
+
+
+在`/etc/nginx/sites-available`下新建一个配置文件`frontend.conf`。内容参考[nginx-config-example/frontend.conf](nginx-config-example/frontend.conf)。
+
+> **注意需要修改的部分：**
+> * `root`后面的配置修改为`dist`目录；
+> * `server_name`修改为前端实际域名；
+> * `ssl_certificate`和`ssl_certificate_key`修改为实际的证书和密钥文件。
+
+创建到`sites-enable`的软链接之后重新加载nginx配置。
+
+```bash
+ln -s /etc/nginx/sites-available/frontend.conf /etc/nginx/sites-enabled/frontend.conf
+systemctl reload nginx
+```
+
+**恭喜你，至此SORALIVE的部署结束了。**
