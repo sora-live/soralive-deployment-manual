@@ -1,0 +1,12 @@
+[Unit]
+Description=Soralive Backend Node App
+
+[Service]
+ExecStart=/usr/bin/node /var/www/soralive-backend-koa/dist/app.js
+Restart=always
+Environment=PATH=/usr/bin:/usr/local/bin:/usr/local/node/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/var/www/soralive-backend-koa/
+
+[Install]
+WantedBy=multi-user.target
